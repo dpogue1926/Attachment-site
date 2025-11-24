@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Catalent – Attachment Upload Portal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <style>
+        /* -------------------------------------
+           🔵 FLASHY LOADING SCREEN
+        --------------------------------------*/
+        #loading-screen {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at center, #0f1b36 0%, #050815 90%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            animation: fadeOut 0.8s ease forwards;
+            animation-delay: 1.2s;
+        }
+
+        @keyframes fadeOut {
+            to { opacity: 0; visibility: hidden; }
+        }
+
+        .loading-icon {
+            width: 90px;
+            height: 90px;
+            border-radius: 22px;
+            background: linear-gradient(135deg, #29b6f6, #0072ce);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 1.4s infinite ease-in-out;
+            box-shadow: 0 0 25px rgba(0, 114, 206, 0.65);
+        }
+
+        .loading-icon svg {
+            width: 44px;
+            height: 44px;
+            animation: rotate 1.4s linear infinite;
+        }
+
+        @keyframes rotate {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 20px rgba(0,112,255,0.5); }
+            50% { transform: scale(1.15); box-shadow: 0 0 35px rgba(0,112,255,0.9); }
+            100% { transform: scale(1); box-shadow: 0 0 20px rgba(0,112,255,0.5); }
+        }
+
+        .loading-text {
+            margin-top: 14px;
+            font-size: 15px;
+            color: #e1ecff;
+            letter-spacing: 0.12em;
+            animation: textPulse 1.4s infinite ease-in-out;
+        }
+
+        @keyframes textPulse {
+            0%,100% { opacity: .7; }
+            50% { opacity: 1; }
+        }
+
+        /* -------------------------------------
+           MAIN SITE STYLES (your previous code)
+        --------------------------------------*/
+        :root {
+            --bg: #0b1020;
+            --card-bg: #121729;
+            --accent: #0072ce;
+            --accent-soft: rgba(0, 114, 206, 0.15);
+            --border-soft: #26324a;
+            --text-main: #f9fbff;
+            --text-muted: #9aa3b8;
+            --success: #35c759;
+            --danger: #ff4d4d;
+            --shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+            --radius-pill: 999px;
+        }
+
+        * { box-sizing: border-box; font-family: system-ui, sans-serif; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: radial-gradient(circle at top, #17233b 0%, #050815 55%, #000 100%);
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .shell {
+            width: 100%;
+            max-width: 960px;
+        }
+
+        .brand-bar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .brand-lockup { display: flex; align-items: center; gap: 10px; }
+
+        .brand-logo {
+            width: 38px; height: 38px;
+            border-radius: 12px;
+            background: radial-gradient(circle at 20% 20%, #29b6f6, #0072ce);
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 0 1px rgba(255,255,255,.05), var(--shadow);
+        }
+
+        .brand-logo svg { width: 20px; height: 20px; }
+
+        .env-pill {
+            padding: 4px 12px;
+            border-radius: var(--radius-pill);
+            background: rgba(0,114,206,.15);
+            border: 1px solid rgba(0,114,206,.4);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+        }
+
+        .card {
+            background: linear-gradient(135deg, rgba(0,114,206,.12), transparent 55%), var(--card-bg);
+            border-radius: 28px;
+            padding: 26px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255,255,255,.05);
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: 3fr 2.6fr;
+            gap: 28px;
+        }
+
+        @media(max-width:800px) {
+            .card-grid { grid-template-columns: 1fr; }
+        }
+
+        .eyebrow {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .18em;
+            color: var(--accent-soft);
+        }
+
+        .card-title { font-size: 22px; font-weight: 650; }
+
+        .field-group { margin-bottom: 16px; }
+
+        label { font-size: 12px; font-weight: 500; text-transform: uppercase; }
+
+        .required { color: var(--danger); }
+
+        input[type="text"] {
+            width: 100%; padding: 10px 12px;
+            border-radius: 12px;
+            border: 1px solid var(--border-soft);
+            background: #050917;
+            color: var(--text-main);
+        }
+
+        .dropzone {
+            border-radius: 14px;
+            border: 1px dashed rgba(151,163,194,.6);
+            background: rgba(7,12,28,.9);
+            padding: 14px;
+            display: flex;
+            gap: 12px;
+            cursor: pointer;
+        }
+
+        .dropzone-icon {
+            width: 40px; height: 40px;
+            background: radial-gradient(circle, #29b6f6, #0072ce);
+            border-radius: 13px;
+            display: flex; align-items:center; justify-content:center;
+        }
+
+        .file-pill {
+            margin-top: 6px;
+            display: inline-flex;
+            padding: 4px 9px;
+            border-radius: 999px;
+            border: 1px solid rgba(151,163,194,0.5);
+            font-size: 11px;
+        }
+
+        .btn-primary {
+            padding: 9px 20px;
+            border-radius: 999px;
+            border: none;
+            background: linear-gradient(135deg, #00a2ff, #0072ce);
+            color: white;
+            cursor: pointer;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 18px;
+            right: 18px;
+            background: rgba(5,12,26,.98);
+            padding: 10px 14px;
+            border-radius: 12px;
+            opacity: 0;
+            transition: opacity .2s ease;
+        }
+
+        .toast--visible { opacity: 1; }
+
+    </style>
+</head>
+
+<body>
+
+<!-- 🔵 LOADING SCREEN -->
+<div id="loading-screen">
+    <div class="loading-icon">
+        <svg viewBox="0 0 24 24" fill="none">
+            <path d="M8.5 12.5L14.5 6.5C15.6 5.4 17.4 5.4 18.5 6.5C19.6 7.6 19.6 9.4 18.5 10.5L11 18C9.3 19.7 6.5 19.7 4.8 18C3.1 16.3 3.1 13.5 4.8 11.8L11.5 5"
+                  stroke="white" stroke-width="1.7" stroke-linecap="round" />
+        </svg>
+    </div>
+    <div class="loading-text">Loading Portal...</div>
+</div>
+
+
+<div class="shell" id="site-content">
+
+    <header class="brand-bar">
+        <div class="brand-lockup">
+            <div class="brand-logo">
+                <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M8.5 12.5L14.5 6.5C15.6 5.4 17.4 5.4 18.5 6.5C19.6 7.6 19.6 9.4 18.5 10.5L11 18C9.3 19.7 6.5 19.7 4.8 18C3.1 16.3 3.1 13.5 4.8 11.8L11.5 5"
+                          stroke="white" stroke-width="1.7" stroke-linecap="round" />
+                </svg>
+            </div>
+            <div>
+                <div>Catalent</div>
+                <div style="font-size:11px;color:#9aa3b8">Attachments Intake · GxP</div>
+            </div>
+        </div>
+
+        <div class="env-pill">Attachments · Production</div>
+    </header>
+
+    <main class="card">
+        <div class="card-grid">
+            <section>
+
+                <div class="eyebrow">Form-linked upload</div>
+                <h1 class="card-title">Upload attachments by Form Number</h1>
+
+                <div class="field-group">
+                    <label>Form Number <span class="required">*</span></label>
+                    <input type="text" id="formNumber" placeholder="Form #NI-202501010930" />
+                </div>
+
+                <div class="field-group">
+                    <label>Attachments <span class="required">*</span></label>
+
+                    <div id="dropzone" class="dropzone">
+                        <div class="dropzone-icon">
+                            <svg viewBox="0 0 24 24" fill="none">
+                                <path d="M8.5 12.5L14.5 6.5C15.6 5.4 17.4 5.4 18.5 6.5C19.6 7.6 19.6 9.4 18.5 10.5L11 18C9.3 19.7 6.5 19.7 4.8 18C3.1 16.3 3.1 13.5 4.8 11.8L11.5 5"
+                                      stroke="white" stroke-width="1.6" stroke-linecap="round" />
+                            </svg>
+                        </div>
+                        <div>
+                            <div>Click or Drop Files</div>
+                            <div style="font-size:11px;color:#9aa3b8">PDF, DOCX, XLSX, JPEG, PNG</div>
+                        </div>
+                    </div>
+
+                    <input id="attachments" type="file" multiple style="display:none;" />
+                    <div id="fileList"></div>
+                </div>
+
+                <button class="btn-primary" id="submitBtn">Submit Attachments</button>
+
+            </section>
+
+            <aside>
+                <h3>SharePoint Destination</h3>
+                <p style="font-size:12px;color:#9aa3b8">
+                    Files will be stored in:
+                </p>
+                <strong style="font-size:12px;">
+                    /sites/InfoPath/Lists/Attachments/AllItems.aspx
+                </strong>
+            </aside>
+
+        </div>
+    </main>
+</div>
+
+
+
+<!-- TOAST -->
+<div id="toast" class="toast">Form + Files Validated</div>
+
+
+<script>
+    /* REMOVE LOADING SCREEN */
+    window.addEventListener("load", () => {
+        setTimeout(() => {
+            document.getElementById("loading-screen").style.display = "none";
+        }, 1800);
+    });
+
+    const dropzone = document.getElementById("dropzone");
+    const fileInput = document.getElementById("attachments");
+    const fileList = document.getElementById("fileList");
+    const submitBtn = document.getElementById("submitBtn");
+    const toast = document.getElementById("toast");
+
+    dropzone.onclick = () => fileInput.click();
+
+    fileInput.onchange = () => {
+        fileList.innerHTML = "";
+        Array.from(fileInput.files).forEach(f => {
+            const pill = document.createElement("div");
+            pill.className = "file-pill";
+            pill.textContent = f.name;
+            fileList.appendChild(pill);
+        });
+    };
+
+    submitBtn.onclick = () => {
+        if (!fileInput.files.length || !formNumber.value.trim()) {
+            alert("Please enter a Form Number AND select at least one file.");
+            return;
+        }
+
+        toast.classList.add("toast--visible");
+        setTimeout(() => toast.classList.remove("toast--visible"), 3000);
+    };
+</script>
+
+</body>
+</html>
